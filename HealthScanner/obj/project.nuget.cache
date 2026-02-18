@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "pvZA2aCDZqM=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\user1\\Desktop\\יעל\\שנה ב\\Health_Scanner_Project\\HealthScanner\\HealthScanner.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\user1\\.nuget\\packages\\microsoft.aspnetcore.openapi\\9.0.11\\microsoft.aspnetcore.openapi.9.0.11.nupkg.sha512",
+    "C:\\Users\\user1\\.nuget\\packages\\microsoft.openapi\\1.6.17\\microsoft.openapi.1.6.17.nupkg.sha512"
+  ],
+  "logs": []
+}
