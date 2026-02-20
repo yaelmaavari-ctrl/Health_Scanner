@@ -1,4 +1,5 @@
-﻿using Repository.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using Repository.Entities;
 using Repository.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -20,27 +21,45 @@ namespace Repository.Repositories
             if(item == null)
                 return null;
             await _context.MedicalConditions.AddAsync(item);
-            await _context.SaveChangesAsync();
+            await _context.Save();
+            return item;
         }
 
-        public Task DeleteItem(int id)
+        public async Task DeleteItem(int id)
         {
-            throw new NotImplementedException();
+            var mc = await _context.MedicalConditions.FirstOrDefaultAsync(mc => mc.Id == id);
+            if(mc != null)
+            {
+                _context.MedicalConditions.Remove(mc);
+                await _context.Save();
+            }
         }
 
-        public Task<List<MedicalCondition>> GetAll()
+        public async Task<List<MedicalCondition>> GetAll()
         {
-            throw new NotImplementedException();
+            return await _context.MedicalConditions.ToListAsync();
         }
 
-        public Task<MedicalCondition> GetById(int id)
+        public async Task<MedicalCondition> GetById(int id)
         {
-            throw new NotImplementedException();
+            return await _context.MedicalConditions.FirstOrDefaultAsync(mc => mc.Id == id);
         }
 
-        public Task<MedicalCondition> UpdateItem(int id, MedicalCondition item)
+        public async Task<MedicalCondition> UpdateItem(int id, MedicalCondition item)
         {
-            throw new NotImplementedException();
+            if (item == null)
+                return null;
+            var mc = await _context.MedicalConditions.FirstOrDefaultAsync(mc => mc.Id == id);
+            if(mc != null)
+            {
+                mc.Key = item.Key;
+                mc.Name = item.Name;
+                mc.IsCritical = item.IsCritical;
+                _context.MedicalConditions.Update(mc);
+                await _context.Save();
+                return mc;
+            }
+            return null;
         }
     }
 }

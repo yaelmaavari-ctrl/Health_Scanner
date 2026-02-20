@@ -13,5 +13,7 @@ namespace Repository.Interfaces
         public DbSet<Ingredient> Ingredients { get; set; }
         public DbSet<MedicalCondition> MedicalConditions { get; set; }
         public DbSet<ConditionRule> ConditionRules { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public Task Save();
     }
 }

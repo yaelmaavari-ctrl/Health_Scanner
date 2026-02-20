@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using Repository.Entities;
+using Repository.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +9,59 @@ using System.Threading.Tasks;
 
 namespace Repository.Repositories
 {
-    internal class ConditionRuleRepository
+    public class ConditionRuleRepository : IRepository<ConditionRule>
     {
+        private readonly Icontext _context;
+        public ConditionRuleRepository(Icontext context) { 
+            _context = context;
+        }
+
+        public async Task<ConditionRule> AddItem(ConditionRule item)
+        {
+            if(item == null)
+                return null;
+            await _context.ConditionRules.AddAsync(item);
+            await _context.Save();
+            return item;
+        }
+
+        public async Task DeleteItem(int id)
+        {
+            var cr = await _context.ConditionRules.FirstOrDefaultAsync(cr => cr.Id == id);
+            if (cr != null)
+            {
+                _context.ConditionRules.Remove(cr);
+                await _context.Save();
+            }
+        }
+
+        public async Task<List<ConditionRule>> GetAll()
+        {
+            return await _context.ConditionRules.ToListAsync();
+        }
+
+        public async Task<ConditionRule> GetById(int id)
+        {
+            return await _context.ConditionRules.FirstOrDefaultAsync(cr => cr.Id == id);
+        }
+
+        public async Task<ConditionRule> UpdateItem(int id, ConditionRule item)
+        {
+            if (item == null)
+                return null;
+            var cr = await _context.ConditionRules.FirstOrDefaultAsync(cr => cr.Id == id);
+            if (cr != null)
+            {
+                cr.ConditionId = item.ConditionId;
+                cr.RuleType = item.RuleType;
+                cr.Target = item.Target;
+                cr.Operator = item.Operator;
+                cr.Threshold = item.Threshold;
+                cr.Penalty = item.Penalty;
+                await _context.Save();
+                return cr;
+            }
+            return null;
+        }
     }
 }

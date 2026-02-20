@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Repository.Repositories
 {
-    public class UserConditionRepository:IRepository<UserCondition>
+    public class UserConditionRepository : ICompositeKeyRepository<UserCondition>
     {
         private readonly Icontext _context;
         public UserConditionRepository(Icontext context)
@@ -19,18 +19,16 @@ namespace Repository.Repositories
 
         public async Task<UserCondition> AddItem(UserCondition item)
         {
-            if (item ==null)
-            {
+            if (item == null)
                 return null;
-            }
             await _context.UserConditions.AddAsync(item);
             await _context.Save();
             return item;
         }
 
-        public async Task DeleteItem(int id)
+        public async Task DeleteItem(int id1, int id2)
         {
-           var uc = _context.UserConditions.FirstOrDefault(u => u.Id == id);
+            var uc = await _context.UserConditions.FirstOrDefaultAsync(uc => uc.UserId == id1 && uc.ConditionId == id2);
             if (uc != null)
             {
                 _context.UserConditions.Remove(uc);
@@ -38,19 +36,29 @@ namespace Repository.Repositories
             }
         }
 
-        public Task<List<UserCondition>> GetAll()
+        public async Task<List<UserCondition>> GetAll()
         {
-            throw new NotImplementedException();
+            return await _context.UserConditions.ToListAsync();
         }
 
-        public Task<UserCondition> GetById(int id)
+        public async Task<UserCondition> GetById(int id1, int id2)
         {
-            throw new NotImplementedException();
+            return await _context.UserConditions.FirstOrDefaultAsync(uc => uc.UserId == id1 && uc.ConditionId == id2);
         }
 
-        public Task<UserCondition> UpdateItem(int id, UserCondition item)
+        public async Task<UserCondition> UpdateItem(int id1, int id2, UserCondition item)
         {
-            throw new NotImplementedException();
+           if (item == null)
+                return null;
+            var uc = await _context.UserConditions.FirstOrDefaultAsync(uc => uc.UserId == id1 && uc.ConditionId == id2);
+            if (uc != null)
+            {
+                uc.UserId = item.UserId;
+                uc.ConditionId = item.ConditionId;
+                await _context.Save();
+                return uc;
+            }
+            return null;
         }
     }
 }
