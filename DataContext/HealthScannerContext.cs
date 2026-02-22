@@ -8,9 +8,14 @@ namespace DataContext
     public class HealthScannerContext : DbContext, Icontext
     {
         private readonly string _connection;
-        public HealthScannerContext(string connectionString)
+        //public HealthScannerContext(string connectionString)
+        //{
+        //    _connection = connectionString;
+        //}
+
+        public HealthScannerContext(DbContextOptions<HealthScannerContext> options)
+        : base(options)
         {
-            _connection = connectionString;
         }
 
         // DbSets
@@ -30,9 +35,22 @@ namespace DataContext
             await SaveChangesAsync();
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //{
+        //    optionsBuilder.UseSqlServer(_connection);
+        //}
+
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            optionsBuilder.UseSqlServer(_connection);
+            modelBuilder.Entity<ProductIngredient>()
+                .HasKey(pi => new { pi.ProductId, pi.IngredientId });
+
+            modelBuilder.Entity<ProductNutrient>()
+                .HasKey(pn => new { pn.ProductId, pn.Id });
+
+            modelBuilder.Entity<UserCondition>()
+                .HasKey(uc => new { uc.UserId, uc.ConditionId });
         }
     }
 }
