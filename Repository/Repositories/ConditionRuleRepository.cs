@@ -1,10 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Repository.Entities;
 using Repository.Interfaces;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Repository.Repositories
@@ -12,14 +9,11 @@ namespace Repository.Repositories
     public class ConditionRuleRepository : IRepository<ConditionRule>
     {
         private readonly Icontext _context;
-        public ConditionRuleRepository(Icontext context) { 
-            _context = context;
-        }
+        public ConditionRuleRepository(Icontext context) => _context = context;
 
-        public async Task<ConditionRule> AddItem(ConditionRule item)
+        public async Task<ConditionRule?> AddItem(ConditionRule item)
         {
-            if(item == null)
-                return null;
+            if (item == null) return null;
             await _context.ConditionRules.AddAsync(item);
             await _context.Save();
             return item;
@@ -37,18 +31,21 @@ namespace Repository.Repositories
 
         public async Task<List<ConditionRule>> GetAll()
         {
-            return await _context.ConditionRules.ToListAsync();
+            return await _context.ConditionRules
+                .Include(cr => cr.MedicalCondition)
+                .ToListAsync();
         }
 
-        public async Task<ConditionRule> GetById(int id)
+        public async Task<ConditionRule?> GetById(int id)
         {
-            return await _context.ConditionRules.FirstOrDefaultAsync(cr => cr.Id == id);
+            return await _context.ConditionRules
+                .Include(cr => cr.MedicalCondition)
+                .FirstOrDefaultAsync(cr => cr.Id == id);
         }
 
-        public async Task<ConditionRule> UpdateItem(int id, ConditionRule item)
+        public async Task<ConditionRule?> UpdateItem(int id, ConditionRule item)
         {
-            if (item == null)
-                return null;
+            if (item == null) return null;
             var cr = await _context.ConditionRules.FirstOrDefaultAsync(cr => cr.Id == id);
             if (cr != null)
             {

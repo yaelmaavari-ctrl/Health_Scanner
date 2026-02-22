@@ -1,22 +1,19 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Repository.Entities;
 using Repository.Interfaces;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Repository.Repositories
 {
-    public class ProductRepository: IRepository<Product>
+    public class ProductRepository : IRepository<Product>
     {
         private readonly Icontext _context;
+        public ProductRepository(Icontext context) => _context = context;
 
-        public async Task<Product> AddItem(Product item)
+        public async Task<Product?> AddItem(Product item)
         {
-            if (item == null)
-                return null;
+            if (item == null) return null;
             await _context.Products.AddAsync(item);
             await _context.Save();
             return item;
@@ -30,7 +27,6 @@ namespace Repository.Repositories
                 _context.Products.Remove(p);
                 await _context.Save();
             }
-
         }
 
         public async Task<List<Product>> GetAll()
@@ -38,15 +34,36 @@ namespace Repository.Repositories
             return await _context.Products.ToListAsync();
         }
 
-        public async Task<Product> GetById(int id)
+        public async Task<List<Product>> GetAllWithRelations()
+        {
+            return await _context.Products
+                .Include(p => p.Category)
+                .Include(p => p.ProductIngredients)
+                    .ThenInclude(pi => pi.Ingredient)
+                .Include(p => p.ProductNutrients)
+                .Include(p => p.ScanHistories)
+                .ToListAsync();
+        }
+
+        public async Task<Product?> GetById(int id)
         {
             return await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
         }
 
-        public async Task<Product> UpdateItem(int id, Product item)
+        public async Task<Product?> GetByIdWithRelations(int id)
         {
-            if (item == null)
-                return null;
+            return await _context.Products
+                .Include(p => p.Category)
+                .Include(p => p.ProductIngredients)
+                    .ThenInclude(pi => pi.Ingredient)
+                .Include(p => p.ProductNutrients)
+                .Include(p => p.ScanHistories)
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
+
+        public async Task<Product?> UpdateItem(int id, Product item)
+        {
+            if (item == null) return null;
             var p = await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
             if (p != null)
             {
@@ -58,10 +75,7 @@ namespace Repository.Repositories
                 await _context.Save();
                 return p;
             }
-            else
-            {
-                return null;
-            }
+            return null;
         }
     }
 }

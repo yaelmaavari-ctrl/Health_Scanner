@@ -1,10 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Repository.Entities;
 using Repository.Interfaces;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Repository.Repositories
@@ -12,14 +9,11 @@ namespace Repository.Repositories
     public class ProductNutrientRepository : IRepository<ProductNutrient>
     {
         private readonly Icontext _context;
-        public ProductNutrientRepository(Icontext context)
+        public ProductNutrientRepository(Icontext context) => _context = context;
+
+        public async Task<ProductNutrient?> AddItem(ProductNutrient item)
         {
-            _context = context;
-        }
-        public async Task<ProductNutrient> AddItem(ProductNutrient item)
-        {
-            if(item == null)
-                return null;
+            if (item == null) return null;
             await _context.ProductNutrients.AddAsync(item);
             await _context.Save();
             return item;
@@ -40,24 +34,38 @@ namespace Repository.Repositories
             return await _context.ProductNutrients.ToListAsync();
         }
 
-        public async Task<ProductNutrient> GetById(int id)
+        public async Task<List<ProductNutrient>> GetAllWithRelations()
+        {
+            return await _context.ProductNutrients
+                .Include(pn => pn.Product)
+                .ToListAsync();
+        }
+
+        public async Task<ProductNutrient?> GetById(int id)
         {
             return await _context.ProductNutrients.FirstOrDefaultAsync(pn => pn.Id == id);
         }
 
-        public async Task<ProductNutrient> UpdateItem(int id, ProductNutrient item)
+        public async Task<ProductNutrient?> GetByIdWithRelations(int id)
         {
-            if (item == null)
-                return null;
+            return await _context.ProductNutrients
+                .Include(pn => pn.Product)
+                .FirstOrDefaultAsync(pn => pn.Id == id);
+        }
+
+        public async Task<ProductNutrient?> UpdateItem(int id, ProductNutrient item)
+        {
+            if (item == null) return null;
             var pn = await _context.ProductNutrients.FirstOrDefaultAsync(pn => pn.Id == id);
-            if (pn == null)
-                return null;
-            pn.ProductId = item.ProductId;
-            pn.NutrientName = item.NutrientName;
-            pn.Value = item.Value;
-            _context.ProductNutrients.Update(pn);
-            await _context.Save();
-            return pn;
+            if (pn != null)
+            {
+                pn.ProductId = item.ProductId;
+                pn.NutrientName = item.NutrientName;
+                pn.Value = item.Value;
+                await _context.Save();
+                return pn;
+            }
+            return null;
         }
     }
 }

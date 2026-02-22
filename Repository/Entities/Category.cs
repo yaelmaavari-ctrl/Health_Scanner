@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Repository.Entities
 {
@@ -12,7 +8,7 @@ namespace Repository.Entities
         public int Id { get; set; }
 
         [Required, MaxLength(100)]
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         public ICollection<Product> Products { get; set; } = new List<Product>();
     }

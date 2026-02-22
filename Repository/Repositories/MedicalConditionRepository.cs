@@ -1,10 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Repository.Entities;
 using Repository.Interfaces;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Repository.Repositories
@@ -12,14 +9,11 @@ namespace Repository.Repositories
     public class MedicalConditionRepository : IRepository<MedicalCondition>
     {
         private readonly Icontext _context;
-        public MedicalConditionRepository(Icontext context) { 
-            _context = context;
-        }
+        public MedicalConditionRepository(Icontext context) => _context = context;
 
-        public async Task<MedicalCondition> AddItem(MedicalCondition item)
+        public async Task<MedicalCondition?> AddItem(MedicalCondition item)
         {
-            if(item == null)
-                return null;
+            if (item == null) return null;
             await _context.MedicalConditions.AddAsync(item);
             await _context.Save();
             return item;
@@ -28,7 +22,7 @@ namespace Repository.Repositories
         public async Task DeleteItem(int id)
         {
             var mc = await _context.MedicalConditions.FirstOrDefaultAsync(mc => mc.Id == id);
-            if(mc != null)
+            if (mc != null)
             {
                 _context.MedicalConditions.Remove(mc);
                 await _context.Save();
@@ -39,23 +33,36 @@ namespace Repository.Repositories
         {
             return await _context.MedicalConditions.ToListAsync();
         }
+        public async Task<List<MedicalCondition>> GetAllWithRelations()
+        {
+            return await _context.MedicalConditions
+                .Include(mc => mc.UserConditions)
+                .Include(mc => mc.ConditionRules)
+                .ToListAsync();
+        }
 
-        public async Task<MedicalCondition> GetById(int id)
+        public async Task<MedicalCondition?> GetById(int id)
         {
             return await _context.MedicalConditions.FirstOrDefaultAsync(mc => mc.Id == id);
         }
 
-        public async Task<MedicalCondition> UpdateItem(int id, MedicalCondition item)
+        public async Task<MedicalCondition?> GetByIdWithRelations(int id)
         {
-            if (item == null)
-                return null;
+            return await _context.MedicalConditions
+                .Include(mc => mc.UserConditions)
+                .Include(mc => mc.ConditionRules)
+                .FirstOrDefaultAsync(mc => mc.Id == id);
+        }
+
+        public async Task<MedicalCondition?> UpdateItem(int id, MedicalCondition item)
+        {
+            if (item == null) return null;
             var mc = await _context.MedicalConditions.FirstOrDefaultAsync(mc => mc.Id == id);
-            if(mc != null)
+            if (mc != null)
             {
                 mc.Key = item.Key;
                 mc.Name = item.Name;
                 mc.IsCritical = item.IsCritical;
-                _context.MedicalConditions.Update(mc);
                 await _context.Save();
                 return mc;
             }

@@ -1,10 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Repository.Entities;
 using Repository.Interfaces;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Repository.Repositories
@@ -12,15 +9,11 @@ namespace Repository.Repositories
     public class UserConditionRepository : ICompositeKeyRepository<UserCondition>
     {
         private readonly Icontext _context;
-        public UserConditionRepository(Icontext context)
-        {
-            _context = context;
-        }
+        public UserConditionRepository(Icontext context) => _context = context;
 
-        public async Task<UserCondition> AddItem(UserCondition item)
+        public async Task<UserCondition?> AddItem(UserCondition item)
         {
-            if (item == null)
-                return null;
+            if (item == null) return null;
             await _context.UserConditions.AddAsync(item);
             await _context.Save();
             return item;
@@ -40,16 +33,29 @@ namespace Repository.Repositories
         {
             return await _context.UserConditions.ToListAsync();
         }
+        public async Task<List<UserCondition>> GetAllWithRelations()
+        {
+            return await _context.UserConditions
+                .Include(uc => uc.User)
+                .Include(uc => uc.MedicalCondition)
+                .ToListAsync();
+        }
 
-        public async Task<UserCondition> GetById(int id1, int id2)
+        public async Task<UserCondition?> GetById(int id1, int id2)
         {
             return await _context.UserConditions.FirstOrDefaultAsync(uc => uc.UserId == id1 && uc.ConditionId == id2);
         }
-
-        public async Task<UserCondition> UpdateItem(int id1, int id2, UserCondition item)
+        public async Task<UserCondition?> GetByIdWithRelations(int id1, int id2)
         {
-           if (item == null)
-                return null;
+            return await _context.UserConditions
+                .Include(uc => uc.User)
+                .Include(uc => uc.MedicalCondition)
+                .FirstOrDefaultAsync(uc => uc.UserId == id1 && uc.ConditionId == id2);
+        }
+
+        public async Task<UserCondition?> UpdateItem(int id1, int id2, UserCondition item)
+        {
+            if (item == null) return null;
             var uc = await _context.UserConditions.FirstOrDefaultAsync(uc => uc.UserId == id1 && uc.ConditionId == id2);
             if (uc != null)
             {
