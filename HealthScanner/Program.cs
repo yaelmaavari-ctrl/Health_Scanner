@@ -1,14 +1,16 @@
 using DataContext;
 using Microsoft.EntityFrameworkCore;
+using Repository.Entities;
 using Repository.Interfaces;
+using Repository.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+
+builder.Services.AddSwaggerGen();
 
 
 // שליפת מחרוזת החיבור מקובץ ההגדרות (appsettings.json)
@@ -18,13 +20,18 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<HealthScannerContext>(options =>
     options.UseSqlServer(connectionString));
 
+builder.Services.AddScoped<Icontext, HealthScannerContext>();
+// אחרי AddDbContext
+builder.Services.AddScoped<IRepository<Product>, ProductRepository>();
+builder.Services.AddScoped<IRepository<Category>, CategoryRepository>();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();      // מפעיל את Swagger JSON
+    app.UseSwaggerUI();    // מפעיל את ה־UI
 }
 
 app.UseHttpsRedirection();

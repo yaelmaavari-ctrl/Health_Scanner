@@ -46,14 +46,16 @@ namespace Repository.Repositories
             return item;
         }
 
-        public async Task DeleteItem(int id)
+        public async Task<bool> DeleteItem(int id)
         {
             var c = await _context.Categories.FirstOrDefaultAsync(c => c.Id == id);
             if (c != null)
             {
                 _context.Categories.Remove(c);
                 await _context.Save();
+                return true; // המחיקה הצליחה
             }
+            return false; // לא נמצא, לכן לא נמחק
         }
 
         public async Task<Category> UpdateItem(int id, Category item)

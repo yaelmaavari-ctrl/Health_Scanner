@@ -19,14 +19,16 @@ namespace Repository.Repositories
             return item;
         }
 
-        public async Task DeleteItem(int id)
+        public async Task<bool> DeleteItem(int id)
         {
             var mc = await _context.MedicalConditions.FirstOrDefaultAsync(mc => mc.Id == id);
             if (mc != null)
             {
                 _context.MedicalConditions.Remove(mc);
                 await _context.Save();
+                return true; // המחיקה הצליחה
             }
+            return false; // לא נמצא פריט למחיקה
         }
 
         public async Task<List<MedicalCondition>> GetAll()

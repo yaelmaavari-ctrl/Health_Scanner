@@ -19,14 +19,16 @@ namespace Repository.Repositories
             return item;
         }
 
-        public async Task DeleteItem(int id)
+        public async Task<bool> DeleteItem(int id)
         {
             var cr = await _context.ConditionRules.FirstOrDefaultAsync(cr => cr.Id == id);
             if (cr != null)
             {
                 _context.ConditionRules.Remove(cr);
                 await _context.Save();
+                return true; // המחיקה הצליחה
             }
+            return false; // לא נמצא, לכן לא נמחק
         }
 
         public async Task<List<ConditionRule>> GetAll()
@@ -60,5 +62,6 @@ namespace Repository.Repositories
             }
             return null;
         }
+
     }
 }

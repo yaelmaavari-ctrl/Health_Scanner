@@ -7,7 +7,7 @@ namespace DataContext
 {
     public class HealthScannerContext : DbContext, Icontext
     {
-        private readonly string _connection;
+        //private readonly string _connection;
         //public HealthScannerContext(string connectionString)
         //{
         //    _connection = connectionString;

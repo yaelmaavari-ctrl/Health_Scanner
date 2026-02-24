@@ -19,14 +19,16 @@ namespace Repository.Repositories
             return item;
         }
 
-        public async Task DeleteItem(int id)
+        public async Task<bool> DeleteItem(int id)
         {
             var sh = await _context.ScanHistories.FirstOrDefaultAsync(sh => sh.Id == id);
             if (sh != null)
             {
                 _context.ScanHistories.Remove(sh);
                 await _context.Save();
+                return true;
             }
+            return false; // לא נמצא פריט למחיקה
         }
 
         public async Task<List<ScanHistory>> GetAll()

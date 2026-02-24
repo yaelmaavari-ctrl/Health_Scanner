@@ -19,14 +19,16 @@ namespace Repository.Repositories
             return item;
         }
 
-        public async Task DeleteItem(int id)
+        public async Task<bool> DeleteItem(int id)
         {
             var pn = await _context.ProductNutrients.FirstOrDefaultAsync(pn => pn.Id == id);
             if (pn != null)
             {
                 _context.ProductNutrients.Remove(pn);
                 await _context.Save();
+                return true; // המחיקה הצליחה
             }
+            return false; // לא נמצא פריט למחיקה
         }
 
         public async Task<List<ProductNutrient>> GetAll()
