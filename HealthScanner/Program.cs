@@ -23,9 +23,11 @@ builder.Services.AddDbContext<HealthScannerContext>(options =>
 builder.Services.AddScoped<Icontext, HealthScannerContext>();
 // אחרי AddDbContext
 builder.Services.AddScoped<IRepository<Product>, ProductRepository>();
-builder.Services.AddScoped<IRepository<Category>, CategoryRepository>();
 
+builder.Services.AddScoped<IRepository<Product>, ProductRepository>();
+builder.Services.AddScoped<IRepository<Category>, CategoryRepository>();
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

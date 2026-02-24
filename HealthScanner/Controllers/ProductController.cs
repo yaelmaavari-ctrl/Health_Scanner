@@ -1,4 +1,81 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿//using HealthScanner.DTOs;
+//using Microsoft.AspNetCore.Mvc;
+//using Repository.Entities;
+//using Repository.Interfaces;
+
+//namespace HealthScanner.Controllers
+//{
+//    [ApiController]
+//    [Route("api/[controller]")]
+//    public class ProductController : ControllerBase
+//    {
+//        private readonly IRepository<Product> _repository;
+
+//        public ProductController(IRepository<Product> repository)
+//        {
+//            _repository = repository;
+//        }
+
+//        // GET: api/product
+//        [HttpGet]
+//        public async Task<ActionResult<IEnumerable<Product>>> Get()
+//        {
+//            var products = await _repository.GetAll();
+//            return Ok(products);
+//        }
+
+//        // GET: api/product/{id}
+//        [HttpGet("{id}")]
+//        public async Task<ActionResult<Product>> Get(int id)
+//        {
+//            var product = await _repository.GetById(id);
+//            if (product == null)
+//                return NotFound(); // מחזיר 404 אם לא קיים
+//            return Ok(product);
+//        }
+
+//        // POST: api/product
+//        [HttpPost]
+//        public async Task<ActionResult<Product>> Post([FromBody] Product product)
+//        {
+//            if (product == null)
+//                return BadRequest(); // 400 אם גוף הבקשה ריק
+
+//            var created = await _repository.AddItem(product);
+//            // מחזיר 201 Created עם מיקום האובייקט החדש
+//            return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
+//        }
+
+//        // PUT: api/product/{id}
+//        [HttpPut("{id}")]
+//        public async Task<ActionResult<Product>> Put(int id, [FromBody] Product product)
+//        {
+//            if (product == null || id != product.Id)
+//                return BadRequest(); // 400 אם הבקשה לא נכונה
+
+//            var updated = await _repository.UpdateItem(id, product);
+//            if (updated == null)
+//                return NotFound(); // 404 אם לא קיים
+
+//            return Ok(updated);
+//        }
+
+//        // DELETE: api/product/{id}
+//        [HttpDelete("{id}")]
+//        public async Task<IActionResult> Delete(int id)
+//        {
+//            var exists = await _repository.GetById(id);
+//            if (exists == null)
+//                return NotFound(); // 404 אם לא קיים
+
+//            await _repository.DeleteItem(id);
+//            return NoContent(); // 204 אחרי מחיקה
+//        }
+//    }
+//}
+
+using HealthScanner.DTOs;
+using Microsoft.AspNetCore.Mvc;
 using Repository.Entities;
 using Repository.Interfaces;
 
@@ -17,58 +94,138 @@ namespace HealthScanner.Controllers
 
         // GET: api/product
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> Get()
+        public async Task<ActionResult<IEnumerable<ProductDto>>> Get()
         {
             var products = await _repository.GetAll();
-            return Ok(products);
+
+            var result = products.Select(p => new ProductDto
+            {
+                Id = p.Id,
+                Barcode = p.Barcode,
+                Name = p.Name,
+                Brand = p.Brand,
+                Description = p.Description,
+                CategoryId = p.CategoryId
+            });
+
+            return Ok(result);
         }
 
         // GET: api/product/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<Product>> Get(int id)
+        public async Task<ActionResult<ProductDto>> Get(int id)
         {
             var product = await _repository.GetById(id);
+
             if (product == null)
-                return NotFound(); // מחזיר 404 אם לא קיים
-            return Ok(product);
+                return NotFound();
+
+            var result = new ProductDto
+            {
+                Id = product.Id,
+                Barcode = product.Barcode,
+                Name = product.Name,
+                Brand = product.Brand,
+                Description = product.Description
+            };
+
+            return Ok(result);
         }
 
         // POST: api/product
         [HttpPost]
-        public async Task<ActionResult<Product>> Post([FromBody] Product product)
+        //public async Task<ActionResult<ProductDto>> Post([FromBody] ProductCreateDto dto)
+        //{
+        //    if (dto == null)
+        //        return BadRequest();
+
+        //    var product = new Product
+        //    {
+        //        Name = dto.Name
+        //    };
+
+        //    var created = await _repository.AddItem(product);
+
+        //    var result = new ProductDto
+        //    {
+        //        Id = created.Id,
+        //        Barcode = created.Barcode,
+        //        Name = created.Name,
+        //        Brand = created.Brand,
+        //        Description = created.Description
+        //    };
+
+        //    return CreatedAtAction(nameof(Get), new { id = result.Id }, result);
+        //}
+
+        public async Task<ActionResult<ProductDto>> Post([FromBody] ProductCreateDto dto)
         {
-            if (product == null)
-                return BadRequest(); // 400 אם גוף הבקשה ריק
+            if (dto == null)
+                return BadRequest();
+
+            // העתקת כל הנתונים מה-DTO ליישות של מסד הנתונים
+            var product = new Product
+            {
+                Barcode = dto.Barcode,
+                Name = dto.Name,
+                Brand = dto.Brand,
+                Description = dto.Description,
+                CategoryId = dto.CategoryId // השורה הקריטית שפתרה את השגיאה!
+            };
 
             var created = await _repository.AddItem(product);
-            // מחזיר 201 Created עם מיקום האובייקט החדש
-            return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
+
+            // החזרת התוצאה
+            var result = new ProductDto
+            {
+                Id = created.Id,
+                Barcode = created.Barcode,
+                Name = created.Name,
+                Brand = created.Brand,
+                Description = created.Description,
+                CategoryId = created.CategoryId
+            };
+
+            return CreatedAtAction(nameof(Get), new { id = result.Id }, result);
         }
 
         // PUT: api/product/{id}
         [HttpPut("{id}")]
-        public async Task<ActionResult<Product>> Put(int id, [FromBody] Product product)
+        public async Task<ActionResult<ProductDto>> Put(int id, [FromBody] ProductUpdateDto dto)
         {
-            if (product == null || id != product.Id)
-                return BadRequest(); // 400 אם הבקשה לא נכונה
+            if (dto == null)
+                return BadRequest();
 
-            var updated = await _repository.UpdateItem(id, product);
-            if (updated == null)
-                return NotFound(); // 404 אם לא קיים
+            var existing = await _repository.GetById(id);
+            if (existing == null)
+                return NotFound();
 
-            return Ok(updated);
+            existing.Name = dto.Name;
+
+            var updated = await _repository.UpdateItem(id, existing);
+
+            var result = new ProductDto
+            {
+                Id = updated.Id,
+                Barcode = updated.Barcode,
+                Name = updated.Name,
+                Brand = updated.Brand,
+                Description = updated.Description
+            };
+
+            return Ok(result);
         }
 
         // DELETE: api/product/{id}
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
-            var exists = await _repository.GetById(id);
-            if (exists == null)
-                return NotFound(); // 404 אם לא קיים
+            bool deleted = await _repository.DeleteItem(id);
 
-            await _repository.DeleteItem(id);
-            return NoContent(); // 204 אחרי מחיקה
+            if (!deleted)
+                return NotFound();
+
+            return NoContent();
         }
     }
 }
