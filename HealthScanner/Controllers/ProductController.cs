@@ -134,43 +134,18 @@ namespace HealthScanner.Controllers
 
         // POST: api/product
         [HttpPost]
-        //public async Task<ActionResult<ProductDto>> Post([FromBody] ProductCreateDto dto)
-        //{
-        //    if (dto == null)
-        //        return BadRequest();
-
-        //    var product = new Product
-        //    {
-        //        Name = dto.Name
-        //    };
-
-        //    var created = await _repository.AddItem(product);
-
-        //    var result = new ProductDto
-        //    {
-        //        Id = created.Id,
-        //        Barcode = created.Barcode,
-        //        Name = created.Name,
-        //        Brand = created.Brand,
-        //        Description = created.Description
-        //    };
-
-        //    return CreatedAtAction(nameof(Get), new { id = result.Id }, result);
-        //}
-
         public async Task<ActionResult<ProductDto>> Post([FromBody] ProductCreateDto dto)
         {
             if (dto == null)
                 return BadRequest();
 
-            // העתקת כל הנתונים מה-DTO ליישות של מסד הנתונים
             var product = new Product
             {
                 Barcode = dto.Barcode,
                 Name = dto.Name,
                 Brand = dto.Brand,
                 Description = dto.Description,
-                CategoryId = dto.CategoryId // השורה הקריטית שפתרה את השגיאה!
+                CategoryId = dto.CategoryId 
             };
 
             var created = await _repository.AddItem(product);

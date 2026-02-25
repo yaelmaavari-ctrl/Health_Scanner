@@ -23,9 +23,8 @@ builder.Services.AddDbContext<HealthScannerContext>(options =>
 builder.Services.AddScoped<Icontext, HealthScannerContext>();
 // אחרי AddDbContext
 builder.Services.AddScoped<IRepository<Product>, ProductRepository>();
-
-builder.Services.AddScoped<IRepository<Product>, ProductRepository>();
 builder.Services.AddScoped<IRepository<Category>, CategoryRepository>();
+builder.Services.AddScoped<IRepository<User>, UserRepository>();
 var app = builder.Build();
 
 

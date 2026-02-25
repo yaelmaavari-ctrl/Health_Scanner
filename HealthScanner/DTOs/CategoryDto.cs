@@ -1,4 +1,6 @@
-﻿namespace HealthScanner.DTOs
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace HealthScanner.DTOs
 {
     // DTO להחזרה (GET)
     public class CategoryDto
@@ -10,6 +12,8 @@
     // DTO ליצירה (POST)
     public class CategoryCreateDto
     {
+        [Required]
+        [MaxLength(100)]
         public string Name { get; set; }
     }
 
